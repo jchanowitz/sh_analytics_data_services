@@ -102,7 +102,10 @@ server.post('/message/pull', function(req, res, next) {
              */
             logger.info('returned payload', prettyJSON(payload));
             res.send(200, JSON.stringify(payload));
-        });
+        .catch(function(err) {
+            logger.error('message pull error', prettyJSON(err));
+        })
+    });
 });
 
 server.post('/auth/login', function(req, res) {
