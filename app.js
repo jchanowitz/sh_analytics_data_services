@@ -30,6 +30,8 @@ mysql.createConnection({
 }).then(function(conn) {
     connection = conn;
     logger.info('Connected to mysql', process.env.MYSQL_HOST);
+}).catch(function(err) {
+    logger.error('cannot connect to db', prettyJSON(err));
 });
 
 
@@ -40,6 +42,7 @@ server.pre(restify.CORS());
 server.use(restify.fullResponse());
 
 server.post('/message/pull', function(req, res, next) {
+    logger.info('message pull request', prettyJSON(req.body));
     var myBody = req.body;
     var inboxDid = '+' + myBody.phone_number;
     var selectedDateString = myBody.selected_date;
@@ -97,6 +100,7 @@ server.post('/message/pull', function(req, res, next) {
              payload.inboxName = msgs[0].member_name;
              }
              */
+            logger.info('returned payload', prettyJSON(payload));
             res.send(200, JSON.stringify(payload));
         });
 });
@@ -108,6 +112,7 @@ server.post('/auth/login', function(req, res) {
         .then(function(userRec) {
             if(userRec.length > 0 && userRec[0].password === req.body.password) {
                 myResponse = 'success';
+                logger.info('login successful', userRec[0].username);
             }
             res.json({authResponse: myResponse});
         });
@@ -121,3 +126,7 @@ server.post('/', function(req, res) {
 server.listen(3000, function() {
     logger.info('Server Listening');
 });
+
+function prettyJSON(obj) {
+    return JSON.stringify(obj, null, 2);
+}
